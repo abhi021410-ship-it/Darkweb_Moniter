@@ -1,28 +1,42 @@
+# 🔍 DarkWeb Breach Monitor
 
-### 🔄 How It Works
-
-1. **User** enters an email in the search box.
-2. **Frontend** sends a POST request to `/check` with the email.
-3. **Backend**:
-   - First checks the **built‑in database** (BREACH_DATABASE) for known test emails.
-   - Then scans the **CSV dataset** (simulates a real breach dump) – this introduces a **8‑12 second delay** to mimic real‑time scanning.
-   - If no match, it generates **random realistic breach data** (for demo purposes).
-4. **Response** is returned with breach details, risk score, remediation steps, and dark web mentions.
-5. **Frontend** renders the results with animations and interactive cards.
-
-> The **8‑12 second delay** is intentional – it gives the impression of a thorough scan across multiple dark web sources.
+**Enterprise-grade dark web breach detection system** – a hackathon project that simulates real-time scanning of breached credentials using a combination of preloaded breach datasets and mock dark web intelligence feeds.
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## 📌 Project Overview
 
-### Prerequisites
-- Python 3.8+
-- pip
+DarkWeb Breach Monitor is a Flask‑based web application that allows users to check if their email address appears in known data breaches. It mimics the behaviour of real breach‑checking services (like HaveIBeenPwned) by:
 
-### Installation
+- Cross‑referencing emails with a built‑in breach database (preset breach records)
+- Scanning a mock CSV dataset (simulating a real leaked dataset)
+- Displaying **live threat feeds**, **dark web marketplaces**, and **historical breach news**
+- Providing a professional, interactive dashboard with statistics and charts
 
-1. **Clone the repository** (or download the ZIP):
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/darkweb-monitor.git
-   cd darkweb-monitor
+> **Note:** This is a **proof‑of‑concept** built for a hackathon. In production, it would integrate with real APIs (e.g., HaveIBeenPwned) and actual dark web crawling infrastructure.
+
+---
+
+## ✨ Features
+
+- ✅ **Email Breach Check** – Enter any email and get breach details (realistic demo)
+- 🗂️ **Mock Breach Dataset** – Includes a sample CSV file (1200+ records) to simulate real data
+- 📊 **Interactive Dashboard** – Stats, live threat feed, active dark web markets
+- 📜 **Breach History** – Timeline of major data breaches (Yahoo, Facebook, LinkedIn, etc.)
+- 🔄 **Real‑time Updates** – Threat feed refreshes automatically every 30 seconds
+- 📱 **Responsive UI** – Works on desktop and mobile
+
+---
+
+## 🧰 Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Backend** | Python, Flask, Flask‑SocketIO |
+| **Frontend** | HTML5, CSS3, JavaScript (Chart.js, Socket.IO client) |
+| **Data** | CSV (sample breach dataset), JSON (breach news) |
+| **Deployment** | GitHub, Render / PythonAnywhere (free tier) |
+
+---
+
+## 📁 Project Architecture
