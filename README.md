@@ -39,4 +39,8 @@ DarkWeb Breach Monitor is a Flask‑based web application that allows users to c
 
 ---
 
-## 📁 Project Architecture
+##  Project Output
+<img width="1147" height="922" alt="image" src="https://github.com/user-attachments/assets/64792d48-49ba-46b8-a7a4-07943c8823b0" />
+<img width="1021" height="927" alt="image" src="https://github.com/user-attachments/assets/de5558a0-fa1d-44af-af53-9d44e8ea3f13" />
+<img width="1106" height="928" alt="image" src="https://github.com/user-attachments/assets/808a004f-03b6-489c-9712-6767814617e0" />
+
