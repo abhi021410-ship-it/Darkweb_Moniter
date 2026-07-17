@@ -44,3 +44,13 @@ DarkWeb Breach Monitor is a Flask‑based web application that allows users to c
 <img width="1021" height="927" alt="image" src="https://github.com/user-attachments/assets/de5558a0-fa1d-44af-af53-9d44e8ea3f13" />
 <img width="1106" height="928" alt="image" src="https://github.com/user-attachments/assets/808a004f-03b6-489c-9712-6767814617e0" />
 
+## 👨‍💻 Author
+
+**M. Abhiram Reddy**
+
+B.Tech – Artificial Intelligence & Data Science
+
+- GitHub: https://github.com/abhi021410-ship-it
+- LinkedIn: https://www.linkedin.com/in/abhiram-reddy-7470b6344/
+
+---
