@@ -1,0 +1,11 @@
+email,breach_source,breach_year,data_found
+user123@gmail.com,Facebook Data Leak,2021,email,phone,name
+rahul.sharma@gmail.com,LinkedIn Breach,2021,email,work_history,skills
+priya.patel@yahoo.com,Yahoo Breach,2013,email,password,security_questions
+amit.kumar@hotmail.com,Adobe Breach,2013,email,encrypted_password,hint
+neha.gupta@gmail.com,Canva Breach,2019,email,name,username
+test@example.com,Multiple Breaches,2024,email,password,phone
+admin@gmail.com,Canva Breach,2019,email,name,design_files
+john.doe@gmail.com,Facebook Leak,2021,email,phone,location
+sarah.smith@yahoo.com,Yahoo Breach,2013,email,password,birthday
+demo.user@company.com,LinkedIn Scrape,2021,email,work_history,connections

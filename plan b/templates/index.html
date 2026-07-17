@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkWeb Breach Monitor - Enterprise Security</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="matrix-bg"></div>
+    
+    <div class="container">
+        <!-- Header with Live Status -->
+        <div class="header">
+            <div class="live-status">
+                <span class="pulse"></span>
+                <span>LIVE DARK WEB MONITORING</span>
+                <span class="badge">ENTERPRISE</span>
+            </div>
+            <h1 class="glitch" data-text="DARK WEB BREACH MONITOR">DARK WEB BREACH MONITOR</h1>
+            <p class="subtitle">Real-time dark web intelligence & breach detection</p>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon">🌐</div>
+                <div class="stat-content">
+                    <span class="stat-value" id="totalBreaches">18,547</span>
+                    <span class="stat-label">Total Breaches</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💾</div>
+                <div class="stat-content">
+                    <span class="stat-value" id="recordsExposed">12.8B</span>
+                    <span class="stat-label">Records Exposed</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-content">
+                    <span class="stat-value" id="activeThreats">547</span>
+                    <span class="stat-label">Active Threats</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔍</div>
+                <div class="stat-content">
+                    <span class="stat-value" id="scansToday">75.3K</span>
+                    <span class="stat-label">Scans Today</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Search Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <input type="email" id="emailInput" placeholder="Enter email address (e.g., test@example.com)" value="test@example.com">
+                <button onclick="checkEmail()" id="scanBtn">
+                    <span>🔍 SCAN DARK WEB</span>
+                    <div class="loader" id="loader"></div>
+                </button>
+            </div>
+            <div class="quick-examples">
+                Try: <span onclick="setEmail('test@example.com')">test@example.com</span> • 
+                <span onclick="setEmail('admin@gmail.com')">admin@gmail.com</span> • 
+                <span onclick="setEmail('john.doe@gmail.com')">john.doe@gmail.com</span>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="result" class="result-section">
+            <div class="welcome-message">
+                <h3>👋 Welcome to DarkWeb Breach Monitor</h3>
+                <p>Enter any email above to check if it appears in dark web databases.</p>
+            </div>
+        </div>
+
+        <!-- Live Dark Web Intelligence -->
+        <div class="live-intel">
+            <div class="section-header">
+                <h2>🔥 LIVE DARK WEB INTELLIGENCE</h2>
+                <div class="header-controls">
+                    <span class="threat-counter" id="threatCounter">5 threats</span>
+                    <button class="refresh-btn" onclick="refreshThreats()">↻</button>
+                </div>
+            </div>
+            
+            <div class="threat-filters">
+                <button class="filter-btn active" data-filter="all">ALL</button>
+                <button class="filter-btn" data-filter="critical">CRITICAL</button>
+                <button class="filter-btn" data-filter="warning">WARNINGS</button>
+                <button class="filter-btn" data-filter="info">INFO</button>
+            </div>
+
+            <div class="threat-feed" id="threatFeed">
+                <!-- Threats loaded dynamically -->
+            </div>
+
+            <div class="feed-footer">
+                <span>🕒 Last updated: <span id="updateTime">Just now</span></span>
+                <span>📡 Source: Dark Web Crawlers</span>
+            </div>
+        </div>
+
+        <!-- Dark Web Markets Monitor -->
+        <div class="markets-section">
+            <h2>🕸️ ACTIVE DARK WEB MARKETS</h2>
+            <div class="markets-grid" id="marketsGrid">
+                <!-- Markets loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BREACH HISTORY BUTTON - YAHI PE PROBLEM THA, AB THEEK KAR DIYA -->
+    <button id="showHistoryBtn" class="history-btn">📜 BREACH HISTORY</button>
+
+    <!-- BREACH HISTORY MODAL -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <h2 style="color: #33ccff; margin-bottom: 20px; text-align: center;">📜 MAJOR DATA BREACHES IN HISTORY</h2>
+            <div id="breachTimeline" class="timeline">
+                <div style="text-align: center; color: #a0a0c0; padding: 20px;">Loading breach history...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breach Details Modal -->
+    <div id="breachModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBreachModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let breachChart;
+
+        // Socket connection
+        socket.on('connect', function() {
+            console.log('Connected to dark web monitor');
+        });
+
+        // Main check function
+        function checkEmail() {
+            const email = document.getElementById('emailInput').value;
+            const btn = document.getElementById('scanBtn');
+            const loader = document.getElementById('loader');
+            
+            if (!email) {
+                alert('Please enter an email');
+                return;
+            }
+
+            // Show loading
+            btn.disabled = true;
+            loader.style.display = 'inline-block';
+            document.getElementById('result').innerHTML = '<div class="loading">🔍 Scanning dark web networks...</div>';
+
+            fetch('/check', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email})
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<div class="error">❌ Error scanning dark web</div>';
+            })
+            .finally(() => {
+                btn.disabled = false;
+                loader.style.display = 'none';
+            });
+        }
+
+        function displayResults(data) {
+            let html = '';
+            
+            if (data.breaches && data.breaches.length > 0) {
+                html += `
+                    <div class="critical-alert">
+                        <div class="alert-icon">🚨</div>
+                        <div class="alert-content">
+                            <h3>CRITICAL: Found in ${data.total_breaches} Dark Web Database(s)!</h3>
+                            <p>Risk Score: <span class="risk-score">${data.risk_score}%</span></p>
+                        </div>
+                    </div>
+                    <div class="breach-cards">
+                `;
+                
+                data.breaches.forEach(breach => {
+                    html += `
+                        <div class="breach-card" onclick="showBreachDetails('${breach.Name.replace(/'/g, "\\'")}', '${breach.Description.replace(/'/g, "\\'")}', '${breach.BreachDate}', '${breach.DataClasses ? breach.DataClasses.join(", ") : "Email, Password"}', '${breach.Severity}')">
+                            <div class="card-header ${breach.Severity.toLowerCase()}">
+                                <span class="breach-name">${breach.Name}</span>
+                                <span class="breach-severity">${breach.Severity}</span>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Date:</strong> ${breach.BreachDate}</p>
+                                <p><strong>Accounts:</strong> ${breach.AccountsAffected}</p>
+                                <p><strong>Data:</strong> ${breach.DataClasses ? breach.DataClasses.slice(0, 3).join(", ") : "Email"}...</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                if (data.remediation) {
+                    html += '<div class="remediation"><h3>🛡️ Immediate Actions Required</h3><ul>';
+                    data.remediation.forEach(step => {
+                        html += `<li>${step}</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+
+            } else {
+                html = `
+                    <div class="safe-alert">
+                        <div class="alert-icon">✅</div>
+                        <div class="alert-content">
+                            <h3>Good News! No Dark Web Mentions Found</h3>
+                            <p>Your email appears safe. Risk Score: ${data.risk_score || 15}%</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('result').innerHTML = html;
+        }
+
+        function showBreachDetails(name, description, date, dataClasses, severity) {
+            const modal = document.getElementById('breachModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <h2 style="color: #33ccff;">${name}</h2>
+                <div class="modal-body">
+                    <p><strong>Breach Date:</strong> ${date}</p>
+                    <p><strong>Severity:</strong> <span style="color: ${severity === 'CRITICAL' ? '#ff3366' : '#ffaa33'}">${severity}</span></p>
+                    <p><strong>Data Exposed:</strong> ${dataClasses}</p>
+                    <p><strong>Description:</strong> ${description}</p>
+                    <hr>
+                    <h3>Recommended Actions:</h3>
+                    <ul>
+                        <li>🔐 Change password immediately</li>
+                        <li>📱 Enable 2FA if available</li>
+                        <li>📧 Monitor email for suspicious activity</li>
+                    </ul>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // BREACH HISTORY FUNCTIONS - YE IMPORTANT HAI
+        function loadBreachHistory() {
+            console.log('Loading breach history...');
+            const timeline = document.getElementById('breachTimeline');
+            timeline.innerHTML = '<div style="text-align: center; color: #a0a0c0; padding: 20px;">Loading breach history...</div>';
+            
+            fetch('/api/breach-news')
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(breaches => {
+                console.log('Breaches loaded:', breaches.length);
+                
+                if (!breaches || breaches.length === 0) {
+                    timeline.innerHTML = '<div style="text-align: center; color: #ff3366; padding: 20px;">No breach data available</div>';
+                    return;
+                }
+                
+                let html = '';
+                breaches.sort((a, b) => parseInt(b.year) - parseInt(a.year)).forEach(breach => {
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-year">${breach.year}</div>
+                            <div class="timeline-content">
+                                <h3>${breach.icon || '📊'} ${breach.company} <span class="records-badge">${breach.records} records</span></h3>
+                                <p><strong>Date:</strong> ${breach.date}</p>
+                                <p><strong>Impact:</strong> ${breach.impact}</p>
+                                <p><strong>Description:</strong> ${breach.description}</p>
+                                <p><strong>How it happened:</strong> ${breach.how}</p>
+                                <p><strong>Source:</strong> ${breach.source}</p>
+                                <details>
+                                    <summary>Read full story</summary>
+                                    <p style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 5px;">${breach.story}</p>
+                                </details>
+                            </div>
+                        </div>
+                    `;
+                });
+                timeline.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading breaches:', error);
+                timeline.innerHTML = '<div style="text-align: center; color: #ff3366; padding: 20px;">Error loading breach history</div>';
+            });
+        }
+
+        // Set email from examples
+        function setEmail(email) {
+            document.getElementById('emailInput').value = email;
+            checkEmail();
+        }
+
+        // Load stats
+        function loadStats() {
+            fetch('/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalBreaches').textContent = data.total_breaches;
+                document.getElementById('recordsExposed').textContent = data.records_exposed;
+                document.getElementById('activeThreats').textContent = data.active_threats;
+                document.getElementById('scansToday').textContent = data.scans_today;
+            })
+            .catch(error => console.error('Stats error:', error));
+        }
+
+        // Load live threats
+        function loadThreats() {
+            fetch('/api/live-threats')
+            .then(response => response.json())
+            .then(threats => {
+                const feed = document.getElementById('threatFeed');
+                feed.innerHTML = '';
+                threats.forEach(threat => {
+                    feed.innerHTML += `
+                        <div class="threat-item ${threat.type}">
+                            <span class="threat-time">${threat.time}</span>
+                            <span class="threat-message">${threat.message}</span>
+                            <span class="threat-source">${threat.source}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('threatCounter').textContent = threats.length + ' threats';
+                document.getElementById('updateTime').textContent = 'Just now';
+            })
+            .catch(error => console.error('Threats error:', error));
+        }
+
+        // Load markets
+        function loadMarkets() {
+            fetch('/api/markets')
+            .then(response => response.json())
+            .then(markets => {
+                const grid = document.getElementById('marketsGrid');
+                grid.innerHTML = '';
+                markets.forEach(market => {
+                    grid.innerHTML += `
+                        <div class="market-card">
+                            <div class="market-name">${market.name}</div>
+                            <div class="market-listings">📊 ${market.listings} listings</div>
+                            <div class="market-status ${market.status.includes('🔥') ? 'active' : 'online'}">${market.status}</div>
+                            <div class="market-type">${market.type}</div>
+                        </div>
+                    `;
+                });
+            })
+            .catch(error => console.error('Markets error:', error));
+        }
+
+        // Filter threats
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                const items = document.querySelectorAll('.threat-item');
+                
+                items.forEach(item => {
+                    if (filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Refresh threats
+        function refreshThreats() {
+            loadThreats();
+        }
+
+        // MODAL FUNCTIONS - YE BHI IMPORTANT HAI
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+
+        function closeBreachModal() {
+            document.getElementById('breachModal').style.display = 'none';
+        }
+
+        // BUTTON CLICK HANDLER - YAHI PE PROBLEM THA, AB THEEK KAR DIYA
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, setting up button...');
+            
+            const historyBtn = document.getElementById('showHistoryBtn');
+            if (historyBtn) {
+                historyBtn.onclick = function() {
+                    console.log('History button clicked!');
+                    loadBreachHistory();
+                    document.getElementById('historyModal').style.display = 'block';
+                };
+                console.log('Button handler attached');
+            } else {
+                console.error('History button not found!');
+            }
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const historyModal = document.getElementById('historyModal');
+            const breachModal = document.getElementById('breachModal');
+            
+            if (event.target == historyModal) {
+                historyModal.style.display = 'none';
+            }
+            if (event.target == breachModal) {
+                breachModal.style.display = 'none';
+            }
+        }
+
+        // Auto refresh
+        loadStats();
+        loadThreats();
+        loadMarkets();
+
+        setInterval(loadThreats, 30000);
+        setInterval(loadStats, 60000);
+
+        // Enter key
+        document.getElementById('emailInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkEmail();
+            }
+        });
+    </script>
+</body>
+</html>
